@@ -1,6 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.contrib.messages import constants
+from django.contrib import messages
+from django.contrib import auth
+
 
 # Create your views here.
 def cadastro(request):
@@ -15,15 +19,15 @@ def cadastro(request):
         users = User.objects.filter(username=username)
 
         if users.exists():
-            print('Erro 1')
+            messages.add_message(request, constants.ERROR, "Já existe um usuário com esse username!")
             return redirect('/usuarios/cadastro')
 
         if senha != confirmar_senha:
-            print('Erro 2')
+            messages.add_message(request, constants.ERROR, "A senha e o confirmar senha devem ser iguais!")
             return redirect('/usuarios/cadastro')
 
         if len(senha) < 6:
-            print('Erro 3')
+            messages.add_message(request, constants.ERROR, "A senha deve ter mais de 6 dígitos!")
             return redirect('/usuarios/cadastro')
         
         try:
@@ -34,5 +38,25 @@ def cadastro(request):
             )
             return redirect('/usuarios/login')
         except:
-            print('Erro 4')
+            messages.add_message(request, constants.ERROR, "Erro ao fazer cadastro!")
             return redirect('/usuarios/cadastro')
+        
+def login_view(request):
+    if request.method == "GET":
+        return render(request, 'login.html')
+    elif request.method == "POST":
+        username = request.POST.get('username')
+        senha = request.POST.get("senha")
+
+        user = auth.authenticate(request, username=username, password=senha)
+
+        if user:
+            auth.login(request, user)
+            return redirect('/pacientes/home')
+
+        messages.add_message(request, constants.ERROR, 'Usuário ou senha incorretos')
+        return redirect('/usuarios/login')
+    
+def sair(request):
+    auth.logout(request)
+    return redirect('/usuarios/login')
