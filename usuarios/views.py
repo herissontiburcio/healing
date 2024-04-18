@@ -26,8 +26,8 @@ def cadastro(request):
             messages.add_message(request, constants.ERROR, "A senha e o confirmar senha devem ser iguais!")
             return redirect('/usuarios/cadastro')
 
-        if len(senha) < 6:
-            messages.add_message(request, constants.ERROR, "A senha deve ter mais de 6 dígitos!")
+        if len(senha) < 8:
+            messages.add_message(request, constants.ERROR, "A senha deve ter mais de 8 dígitos!")
             return redirect('/usuarios/cadastro')
         
         try:
